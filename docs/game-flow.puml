@@ -1,0 +1,46 @@
+@startuml game-flow
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #444444
+skinparam ActivityBackgroundColor #E8F4FD
+skinparam ActivityBorderColor #2196F3
+skinparam ActivityDiamondBackgroundColor #FFF3E0
+skinparam ActivityDiamondBorderColor #FF9800
+skinparam PartitionBackgroundColor #F5F5F5
+skinparam PartitionBorderColor #BDBDBD
+
+title BALDA — Single Game Flow
+
+start
+
+:__Runner__ (run.sh)
+reads **board.txt**, picks next player;
+
+repeat
+  :Send board state + rules
+  to **AI Model** via CLI;
+
+  :Model returns move
+  LETTER, POSITION, WORD, PATH;
+
+  if (__Validator__) then (invalid)
+  else (valid)
+    :Update **board.txt**
+    place letter, record word, update score;
+
+    if (Board full?) then (yes)
+      :Game Over — show final scores;
+      stop
+    else (no)
+      :Next player;
+      break
+    endif
+  endif
+repeat while (Retries < 3?) is (yes) not (no)
+
+:Skip turn — next player;
+
+-> __Runner__ (run.sh)
+reads **board.txt**, picks next player;
+
+@enduml

@@ -1,0 +1,35 @@
+# Game logs and run outputs
+logs/
+move_output.txt
+board.txt
+
+# Benchmark results and generated data
+benchmarks/
+benchmark_results_runs.csv
+evolution_gifs/
+templates/
+
+# Non-essential scripts and docs
+setup-benchmark.sh
+merge-benchmark-results.sh
+benchmark-quick-test.sh
+benchmark-stress-test.sh
+scripts/generate_evolution_gifs.py
+.gitignore-benchmark
+BENCHMARK_README.md
+FIXES.md
+IMPROVEMENTS.md
+
+# Temporary/working files
+players copy.txt
+
+# Claude Code local settings
+.claude/
+
+# OS files
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/

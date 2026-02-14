@@ -1,0 +1,104 @@
+@startuml benchmark-flow
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #444444
+skinparam ActivityBackgroundColor #E8F4FD
+skinparam ActivityBorderColor #2196F3
+skinparam ActivityDiamondBackgroundColor #FFF3E0
+skinparam ActivityDiamondBorderColor #FF9800
+skinparam NoteBackgroundColor #FFFDE7
+skinparam NoteBorderColor #FBC02D
+skinparam PartitionBackgroundColor #F5F5F5
+skinparam PartitionBorderColor #BDBDBD
+
+title BALDA — Benchmark Flow
+
+start
+
+partition "Setup" {
+  :Load **benchmark-config.sh**
+  tools, models, boards, timeouts, iterations;
+
+  :Run **validate-models.sh**
+  test each model responds;
+
+  if (All models valid?) then (no)
+    :Abort or skip invalid models;
+  else (yes)
+  endif
+
+  :Create results directory
+  benchmarks/benchmark_YYYYMMDD_HHMMSS/;
+}
+
+note right
+  **Subject models**
+  ----
+  **Claude CLI** (ask & agent mode)
+  - claude-opus-4-6
+  - claude-sonnet-4-5-20250929
+  - claude-haiku-4-5-20251001
+  ----
+  **Cursor CLI** (ask & agent mode)
+  - gpt-5.2
+  - grok
+  - gemini-3-flash
+  - opus-4.6
+  - sonnet-4.5
+end note
+
+partition "Experiment Loop" {
+  :For each **tool**
+  (claude, cursor);
+
+  :For each **model** in tool;
+
+  :For each **board size**;
+
+  note right
+    **Boards**
+    ----
+    3x4  (12 cells)
+    5x5  (20 cells)
+    7x7  (42 cells)
+  end note
+
+  :For each **timeout** x **iteration**;
+
+  :Create experiment board
+  from template, set player config;
+
+  :Run **run.sh** with
+  hang detection & game timeout;
+
+  if (Experiment result?) then (failure)
+    :Increment consecutive
+    failure counter;
+    if (3 consecutive\nfailures?) then (yes)
+      :Skip remaining experiments
+      for this model;
+      -> For each **model** in tool;
+    else (no)
+    endif
+  else (success)
+    :Reset failure counter;
+  endif
+
+  :Save results
+  final_board.txt, game.csv, output.log;
+}
+
+partition "Analysis" {
+  :Run **analyze-results.sh**
+  parse all experiment logs;
+
+  :Generate metrics
+  score, moves, errors, avg word length;
+
+  :Output comparison CSV
+  aggregated by model / config;
+}
+
+stop
+
+@enduml
